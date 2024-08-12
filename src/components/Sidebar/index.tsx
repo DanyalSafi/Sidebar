@@ -1,4 +1,7 @@
 "use client";
+
+import { useState, useEffect } from "react";
+import SidebarItem from "./item";
 import {
   LucideIcon,
   House,
@@ -11,7 +14,6 @@ import {
   ReceiptText,
   ChartColumnIncreasing,
 } from "lucide-react";
-import SidebarItem from "./item";
 
 interface ISidebarItem {
   name: string;
@@ -111,7 +113,7 @@ const items: ISidebarItem[] = [
         path: "/reporting/sigma",
       },
       {
-        name: "Revenue_Recognition",
+        name: "Revenue Recognition",
         path: "/reporting/revenue-recognition",
       },
       {
@@ -150,13 +152,50 @@ const items: ISidebarItem[] = [
 ];
 
 const Sidebar = () => {
+  const [recentRoutes, setRecentRoutes] = useState<string[]>([]);
+
+  useEffect(() => {
+    const storedRoutes = localStorage.getItem("recentRoutes");
+    if (storedRoutes) {
+      setRecentRoutes(JSON.parse(storedRoutes));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("recentRoutes", JSON.stringify(recentRoutes));
+  }, [recentRoutes]);
+
+  const handleItemClick = (path: string) => {
+    setRecentRoutes((prevRoutes) => {
+      const updatedRoutes = [path, ...prevRoutes.filter((route) => route !== path)];
+      if (updatedRoutes.length > 5) {
+        updatedRoutes.pop(); // Limit the list to the 5 most recent routes
+      }
+      return updatedRoutes;
+    });
+  };
+
   return (
-    <div className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-10 p-4">
+    <div className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-10 p-4 overflow-y-auto">
       <div className="flex flex-col space-y-10 w-full">
         <div className="flex flex-col space-y-2">
           {items.map((item, index) => (
-            <SidebarItem key={index} item={item} />
+            <SidebarItem key={index} item={item} onItemClick={handleItemClick} />
           ))}
+          {recentRoutes.length > 0 && (
+            <div className="mt-10">
+              <h3 className="text-lg font-semibold">Shortcuts</h3>
+              <div className="flex flex-col space-y-2">
+                {recentRoutes.map((route, index) => (
+                  <SidebarItem
+                    key={index}
+                    item={items.find((item) => item.path === route)!}
+                    onItemClick={handleItemClick}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

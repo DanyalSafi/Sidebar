@@ -24,8 +24,6 @@ const SidebarItem = ({ item, onItemClick }: { item: ISidebarItem, onItemClick: (
   const pathname = usePathname();
 
   const onClick = () => {
-    onItemClick(path); // Notify parent about the item click
-
     if (items && items.length > 0) {
       return setExpanded(!expanded);
     }

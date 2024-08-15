@@ -178,7 +178,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     localStorage.setItem("pinnedRoutes", JSON.stringify(pinnedRoutes));
-  }, [pinnedRoutes]);
+  }, [pinnedRoutes]);    
 
   const handleItemClick = (path: string) => {
     setRecentRoutes((prevRoutes) => {

@@ -19,12 +19,14 @@ const SubMenuItem = ({ item }: { item: ISubItem }) => {
   const isActive = useMemo(() => path === pathname, [path, pathname]);
 
   return (
+
     <div
       className={`text-sm hover:text-sidebar-active hover:font-semibold cursor-pointer ${
         isActive ? "text-sidebar-active font-semibold" : ""
       }`}
       onClick={onClick}
     >
+
       {name}
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import SidebarItem from "./item";
+import PinShortcutModal from "./PinShortcutModal";
 import {
   LucideIcon,
   House,
@@ -13,6 +14,9 @@ import {
   CreditCard,
   ReceiptText,
   ChartColumnIncreasing,
+  ChevronDown,
+  ChevronUp,
+  Menu
 } from "lucide-react";
 
 interface ISidebarItem {
@@ -153,11 +157,18 @@ const items: ISidebarItem[] = [
 
 const Sidebar = () => {
   const [recentRoutes, setRecentRoutes] = useState<string[]>([]);
+  const [pinnedRoutes, setPinnedRoutes] = useState<string[]>([]);
+  const [shortcutsExpanded, setShortcutsExpanded] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const storedRoutes = localStorage.getItem("recentRoutes");
+    const storedPinnedRoutes = localStorage.getItem("pinnedRoutes");
     if (storedRoutes) {
       setRecentRoutes(JSON.parse(storedRoutes));
+    }
+    if (storedPinnedRoutes) {
+      setPinnedRoutes(JSON.parse(storedPinnedRoutes));
     }
   }, []);
 
@@ -165,14 +176,30 @@ const Sidebar = () => {
     localStorage.setItem("recentRoutes", JSON.stringify(recentRoutes));
   }, [recentRoutes]);
 
+  useEffect(() => {
+    localStorage.setItem("pinnedRoutes", JSON.stringify(pinnedRoutes));
+  }, [pinnedRoutes]);
+
   const handleItemClick = (path: string) => {
     setRecentRoutes((prevRoutes) => {
       const updatedRoutes = [path, ...prevRoutes.filter((route) => route !== path)];
       if (updatedRoutes.length > 5) {
-        updatedRoutes.pop(); // Limit the list to the 5 most recent routes
+        updatedRoutes.pop(); 
       }
       return updatedRoutes;
     });
+  };
+
+  const toggleShortcuts = () => {
+    setShortcutsExpanded(!shortcutsExpanded);
+  };
+
+  const togglePin = (path: string) => {
+    setPinnedRoutes((prevPinnedRoutes) =>
+      prevPinnedRoutes.includes(path)
+        ? prevPinnedRoutes.filter((route) => route !== path)
+        : [...prevPinnedRoutes, path]
+    );
   };
 
   return (
@@ -180,24 +207,58 @@ const Sidebar = () => {
       <div className="flex flex-col space-y-10 w-full">
         <div className="flex flex-col space-y-2">
           {items.map((item, index) => (
-            <SidebarItem key={index} item={item} onItemClick={handleItemClick} />
+            <div key={index}>
+              {item.name === "Payments" && (
+                <p className="text-gray-500 mt-2">Products</p>
+              )}
+              <SidebarItem
+                item={item}
+                onItemClick={handleItemClick}
+                onPinClick={togglePin}
+                isPinned={pinnedRoutes.includes(item.path)}
+              />
+            </div>
           ))}
           {recentRoutes.length > 0 && (
             <div className="mt-10">
-              <h3 className="text-lg font-semibold">Shortcuts</h3>
-              <div className="flex flex-col space-y-2">
-                {recentRoutes.map((route, index) => (
-                  <SidebarItem
-                    key={index}
-                    item={items.find((item) => item.path === route)!}
-                    onItemClick={handleItemClick}
-                  />
-                ))}
+              <div
+                className="flex justify-between items-center cursor-pointer"
+                onClick={toggleShortcuts}
+              >
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-lg font-semibold">Shortcuts</h3>
+                  <button onClick={() => setIsModalOpen(true)} className="text-blue-500 float-left">
+                    <Menu className="h-5 w-5" />
+                  </button>
+                </div>
+                {shortcutsExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </div>
+              {shortcutsExpanded && (
+                <div className="flex flex-col space-y-2 mt-2">
+                  {pinnedRoutes.map((route, index) => (
+                    <SidebarItem
+                      key={index}
+                      item={items.find((item) => item.path === route)!}
+                      onItemClick={handleItemClick}
+                      onPinClick={togglePin}
+                      isPinned={true}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
+      {isModalOpen && (
+        <PinShortcutModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          recentItems={recentRoutes.map((route) => items.find((item) => item.path === route)!)}
+          pinnedItems={pinnedRoutes}
+          togglePin={togglePin}
+        />
+      )}
     </div>
   );
 };

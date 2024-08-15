@@ -1,4 +1,5 @@
 "use client";
+
 import { usePathname, useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 
@@ -19,14 +20,12 @@ const SubMenuItem = ({ item }: { item: ISubItem }) => {
   const isActive = useMemo(() => path === pathname, [path, pathname]);
 
   return (
-
     <div
-      className={`text-sm hover:text-sidebar-active hover:font-semibold cursor-pointer ${
-        isActive ? "text-sidebar-active font-semibold" : ""
+      className={`text-sm p-2 cursor-pointer rounded-lg ${
+        isActive ? "text-blue-600 bg-gray-200 font-semibold" : "hover:text-blue-600 hover:bg-gray-100"
       }`}
       onClick={onClick}
     >
-
       {name}
     </div>
   );

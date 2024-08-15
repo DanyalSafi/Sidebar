@@ -178,13 +178,13 @@ const Sidebar = () => {
 
   useEffect(() => {
     localStorage.setItem("pinnedRoutes", JSON.stringify(pinnedRoutes));
-  }, [pinnedRoutes]);    
+  }, [pinnedRoutes]);
 
   const handleItemClick = (path: string) => {
     setRecentRoutes((prevRoutes) => {
       const updatedRoutes = [path, ...prevRoutes.filter((route) => route !== path)];
       if (updatedRoutes.length > 5) {
-        updatedRoutes.pop(); 
+        updatedRoutes.pop();
       }
       return updatedRoutes;
     });
@@ -206,8 +206,8 @@ const Sidebar = () => {
     <div className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-10 p-4 overflow-y-auto">
       <div className="flex flex-col space-y-10 w-full">
         <div className="flex flex-col space-y-2">
-          {items.map((item, index) => (
-            <div key={index}>
+          {items.map((item) => (
+            <div key={item.path}>
               {item.name === "Payments" && (
                 <p className="text-gray-500 mt-2">Products</p>
               )}
@@ -235,15 +235,18 @@ const Sidebar = () => {
               </div>
               {shortcutsExpanded && (
                 <div className="flex flex-col space-y-2 mt-2">
-                  {pinnedRoutes.map((route, index) => (
-                    <SidebarItem
-                      key={index}
-                      item={items.find((item) => item.path === route)!}
-                      onItemClick={handleItemClick}
-                      onPinClick={togglePin}
-                      isPinned={true}
-                    />
-                  ))}
+                  {pinnedRoutes.map((route) => {
+                    const item = items.find((item) => item.path === route);
+                    return item ? (
+                      <SidebarItem
+                        key={route}
+                        item={item}
+                        onItemClick={handleItemClick}
+                        onPinClick={togglePin}
+                        isPinned={true}
+                      />
+                    ) : null;
+                  })}
                 </div>
               )}
             </div>

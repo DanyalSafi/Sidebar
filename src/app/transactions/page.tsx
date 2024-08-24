@@ -140,7 +140,7 @@ export default function Transactions() {
   }, []);
 
   return (
-    <div>
+    <div className='bg-slate-100'>
       <div className='p-5 flex justify-between'>
         <div className='flex items-center gap-8'>
           <div className='md:flex gap-3 items-center p-2 px-5 hidden'>
